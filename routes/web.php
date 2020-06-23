@@ -44,7 +44,18 @@ use Illuminate\Support\Facades\Route;
 // 	//Tercera Forma
 // 	return view('home', compact('nombre'));
 // })->name("home");
-Route::view("/", "home")->name("home");
-Route::view("about", "about")->name("about");
-Route::view("portafolio", "portafolio")->name("portafolio");
-Route::view("contact", "contact")->name("contact");
+// Route::view("/", "welcome")->name("home");
+Route::view("comenzarJuego", "comenzarJuego")->name("juego");
+Route::view("usuarios.show", "about")->name("about");
+// // Route::view("portafolio", "portafolio")->name("portafolio");
+// Route::view("contact", "contact")->name("contact");
+
+//con controladores
+// Route::get("/portafolio", "PortafolioController@index")->name("portafolio.index");
+Route::get("/", "PuntajeController@index")->name("puntaje.index");
+Route::get("/comenzarJuego/{id}", "UsuarioController@show")->name("user.show");
+
+
+Auth::routes();
+
+Route::get('/home/{id}', 'HomeController@show')->name('home.show');
