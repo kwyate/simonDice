@@ -47,10 +47,8 @@ class UsuarioController extends Controller
      */
     public function show($id)
     {
-        // $user = User::find($id);
         $pregunta = Pregunta::find($id);
         return view("usuarios.show", [
-            // "usuario"=> $user,
             "pregunta"=> $pregunta
         ]);
     }

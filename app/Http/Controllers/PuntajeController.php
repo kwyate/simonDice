@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Puntaje;
 use App\User;
-use App\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PuntajeController extends Controller
@@ -17,13 +17,15 @@ class PuntajeController extends Controller
      */
     public function index()
     {
-        $points = DB::select('SELECT tbl_puntajes.id, name, puntaje, id_nivel FROM tbl_puntajes INNER JOIN users ON tbl_puntajes.id_usuario = users.id INNER JOIN tbl_niveles ON tbl_puntajes.id_nivel = tbl_niveles.id;');
-        // $portafolio = Usuario::latest("id")->get();
-        // return $portafolio;
+        $user = Auth::user();
+        if($user == null){
+            $points = DB::select('SELECT tbl_puntajes.id, name, puntaje, id_nivel FROM tbl_puntajes INNER JOIN users ON tbl_puntajes.id_usuario = users.id INNER JOIN tbl_niveles ON tbl_puntajes.id_nivel = tbl_niveles.id ORDER BY puntaje  DESC LIMIT 5');
+        }else{
+            $points = DB::select('SELECT tbl_puntajes.id, name, puntaje, id_nivel FROM tbl_puntajes INNER JOIN users ON tbl_puntajes.id_usuario = users.id INNER JOIN tbl_niveles ON tbl_puntajes.id_nivel = tbl_niveles.id WHERE users.id = ? ORDER BY puntaje  DESC LIMIT 5', [auth()->user()->id]);
+        }
         return view("welcome", [
             "puntajes"=>$points
         ]);
-        // return $puntajes;
     }
 
     /**
@@ -31,9 +33,8 @@ class PuntajeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($id)
     {
-        //
     }
 
     /**
@@ -44,7 +45,19 @@ class PuntajeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $puntaje = $request->get("nivel") * 10;
+        $nivel = $request->get("nivel") ;
+        $numPuntaje = intval(DB::select("SELECT max(numPuntaje) FROM tbl_puntajes WHERE  id_usuario = ?", [auth()->user()->id])) + 1;
+        Puntaje::create([
+            "id_usuario" => auth()->user()->id,
+            "puntaje" => $puntaje,
+            "id_nivel" => $nivel,
+            "numPuntaje" => $numPuntaje
+        ]);
+        $points = DB::select('SELECT tbl_puntajes.id, name, puntaje, id_nivel FROM tbl_puntajes INNER JOIN users ON tbl_puntajes.id_usuario = users.id INNER JOIN tbl_niveles ON tbl_puntajes.id_nivel = tbl_niveles.id WHERE users.id = ? ', [auth()->user()->id]);
+        return view("welcome", [
+            "puntajes"=>$points
+        ]);
     }
 
     /**
@@ -55,8 +68,6 @@ class PuntajeController extends Controller
      */
     public function show($id)
     {
-        $user = User::find($id);
-        return view("");
     }
 
     /**
